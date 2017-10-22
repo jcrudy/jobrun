@@ -1,0 +1,6 @@
+name: jobrundev
+dependencies:
+    - python=2.7.12
+    - nose
+    - scikit-learn
+    - networkx
