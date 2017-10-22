@@ -8,7 +8,7 @@ setup(name='jobrun',
       author='Jason Rudy',
       author_email='jcrudy@gmail.com',
       url='https://github.com/jcrudy/jobrun',
-      packages=['oreader'],
+      packages=['jobrun'],
       install_requires=['networkx', 'scikit-learn'],
       tests_require=['nose']
      )
