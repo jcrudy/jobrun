@@ -22,8 +22,9 @@ class LoggerWriter:
         self.level(sys.stderr)
 
 class LogCapture(object):
-    def __init__(self, filename):
+    def __init__(self, filename, suppress_printing=True):
         self.filename = filename
+        self.suppress_printing = suppress_printing
     
     def __enter__(self):
         self.stdout = sys.stdout
@@ -36,6 +37,8 @@ class LogCapture(object):
         handler.setFormatter(formatter)
         self.log = logging.getLogger()
         self.log.addHandler(handler)
+        if not self.suppress_printing:
+            self.log.addHandler(logging.StreamHandler(sys.stdout))
         
         sys.stdout = LoggerWriter(self.log.info)
         sys.stderr = LoggerWriter(self.log.warning)

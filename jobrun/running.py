@@ -2,6 +2,8 @@ import networkx
 from .util import get_timestamp
 from jobrun.log_capturing import LogCapture
 import time
+from toolz.dicttoolz import merge, get_in
+from jobrun.util import none_to_empty_dict
 
 def depend(*dependencies):
     def _depend(fun):
@@ -46,16 +48,14 @@ class Runner(object):
         with LogCapture(logfilename) as log:
             t0 = time.time()
             jobs = self.run_order()
-            result = {}
+            results = {}
             success = False
             for job in jobs:
                 name = job.__name__
                 log.info('Running %s' % name)
                 t1 = time.time()
                 try:
-                    result = job(**result)
-                    if result is None:
-                        result = {}
+                    results[job] = none_to_empty_dict(job(**merge(*[results[k] for k in (job.inputs if hasattr(job, 'inputs') else [])])))
                     success = True
                 except:
                     log.info('Job %s failed.' % name)
@@ -69,3 +69,4 @@ class Runner(object):
                     break
             t3 = time.time()
             log.info('Completed all jobs in %f seconds.' % (t3 - t0))
+        return results

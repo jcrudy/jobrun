@@ -26,35 +26,39 @@ def test_run_order():
     def c():
         pass
     
-    @depend(a)
+    @depend(a,b)
     def d():
         pass
     
-    runner = Runner([a,b,c,d], lambda:'test_log')
+    runner = Runner([b,c,d,a], lambda:'test_log')
     order = runner.run_order()
     orders = dict(zip(order, range(len(order))))
     assert orders[a] < orders[b]
     assert orders[a] < orders[d]
     assert orders[b] < orders[c]
+    assert orders[b] < orders[d]
 
 def test_run():
     def a():
         print 'a'
+        return {'a':1}
     
     @depend(a)
-    def b():
+    def b(a):
         print 'b'
+        return {'b': 2}
     
     @depend(b)
-    def c():
+    def c(b):
         print 'c'
     
-    @depend(a)
-    def d():
+    @depend(a,b)
+    def d(a, b):
         warnings.warn('d')
+        return {'d': a + b}
     
     runner = Runner([a,b,c,d], lambda:'test_log')
-    runner.run()
+    result = runner.run()
     with open('test_log', 'r') as infile:
         log = infile.read()
         
@@ -62,6 +66,8 @@ def test_run():
     assert 'Running b' in log
     assert 'Running c' in log
     assert 'Running d' in log
+    assert 'warning' in log
+    assert_equal(result[d]['d'], 3)
     
     if os.path.exists('test_log'):
         os.remove('test_log')
