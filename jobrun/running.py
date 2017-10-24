@@ -1,8 +1,7 @@
 import networkx
-from .util import get_timestamp
 from jobrun.log_capturing import LogCapture
 import time
-from toolz.dicttoolz import merge, get_in
+from toolz.dicttoolz import merge
 from jobrun.util import none_to_empty_dict
 
 def depend(*dependencies):
@@ -10,12 +9,6 @@ def depend(*dependencies):
         fun.inputs = dependencies
         return fun
     return _depend
-
-def ts(name):
-    def _ts():
-        timestamp = get_timestamp()
-        return name % timestamp
-    return _ts
 
 class Runner(object):
     '''
