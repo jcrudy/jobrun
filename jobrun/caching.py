@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 import os
 from sklearn.externals import joblib
 from jobrun.util import md5
+import pickle
 
 
 class UpdateTrigger(object):
@@ -75,22 +76,19 @@ class NotTrigger(UpdateTrigger):
     
     def succeed(self, token):
         self.arg.succeed(token)
-    
-class FileModifiedBase(UpdateTrigger):
-    def __init__(self, filename, cache_filename=None):
-        self.filename = filename
-        if cache_filename is None:
-            self.cache_filename = filename + ('.cache.%s.pkl' % self.__class__.__name__)
-        else:
-            self.cache_filename = cache_filename
-    
+
+
+class ModifiedBase(UpdateTrigger):
     def check(self):
         stamp = self.get_stamp()
-        if os.path.exists(self.cache_filename):
-            with open(self.cache_filename, 'r') as infile:
-                old_stamp = infile.read()
-            if stamp == old_stamp:
-                return False, None
+        try:
+            if os.path.exists(self.cache_filename):
+                with open(self.cache_filename, 'r') as infile:
+                    old_stamp = infile.read()
+                if stamp == old_stamp:
+                    return False, None
+        except:
+            pass
         return True, stamp
     
     def succeed(self, token):
@@ -100,7 +98,23 @@ class FileModifiedBase(UpdateTrigger):
     @abstractmethod
     def get_stamp(self):
         pass
+
+class ObjectModified(ModifiedBase):
+    def __init__(self, obj, cache_filename):
+        self.obj = obj
+        self.cache_filename = cache_filename
+        
+    def get_stamp(self):
+        return pickle.dumps(self.obj)
     
+class FileModifiedBase(ModifiedBase):
+    def __init__(self, filename, cache_filename=None):
+        self.filename = filename
+        if cache_filename is None:
+            self.cache_filename = filename + ('.cache.%s.pkl' % self.__class__.__name__)
+        else:
+            self.cache_filename = cache_filename
+
 class TimestampModified(FileModifiedBase):
     def get_stamp(self):
         return str(os.path.getmtime(self.filename))

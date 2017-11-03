@@ -50,7 +50,7 @@ def test_run():
     
     @depend(b)
     def c(b):
-        print 'c'
+        print 'The quick brown fox'
     
     @depend(a,b)
     def d(a, b):
@@ -67,6 +67,7 @@ def test_run():
     assert 'Running c' in log
     assert 'Running d' in log
     assert 'warning' in log
+    assert 'The quick brown fox' in log
     assert_equal(result[d]['d'], 3)
     
     if os.path.exists('test_log'):
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     import sys
     import nose
     module_name = sys.modules[__name__].__file__
-
+ 
     result = nose.run(argv=[sys.argv[0],
                             module_name,
                             '-s','-v'])

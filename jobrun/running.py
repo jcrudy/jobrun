@@ -1,8 +1,8 @@
 import networkx
-from jobrun.log_capturing import LogCapture
+from .log_capturing import LogCapture
 import time
 from toolz.dicttoolz import merge
-from jobrun.util import none_to_empty_dict
+from .util import none_to_empty_dict
 
 def depend(*dependencies):
     def _depend(fun):
@@ -36,9 +36,9 @@ class Runner(object):
         jobs = networkx.topological_sort(graph)
         return jobs
     
-    def run(self):
+    def run(self, suppress_printing=True):
         logfilename = self.logfilenamer() if not isinstance(self.logfilenamer, basestring) else self.logfilenamer
-        with LogCapture(logfilename) as log:
+        with LogCapture(logfilename, suppress_printing=suppress_printing) as log:
             t0 = time.time()
             jobs = self.run_order()
             results = {}

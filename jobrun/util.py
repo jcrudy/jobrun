@@ -11,6 +11,11 @@ def ts(name):
         return name % timestamp
     return _ts
 
+def const(name):
+    def _const():
+        return name
+    return _const
+
 def md5(fname):
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as f:
