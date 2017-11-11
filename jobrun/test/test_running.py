@@ -73,7 +73,18 @@ def test_run():
     if os.path.exists('test_log'):
         os.remove('test_log')
     
-
+    @depend(d)
+    def e(d):
+        raise ValueError('Hello')
+    
+    runner = Runner([a,b,c,d,e], lambda:'test_log')
+    try:
+        result = runner.run()
+    except:
+        pass
+    with open('test_log', 'r') as infile:
+        log = infile.read()
+    assert 'Hello' in log
         
 if __name__ == '__main__':
     # This code will run the test in this file.'
