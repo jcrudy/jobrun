@@ -3,6 +3,7 @@ import os
 from sklearn.externals import joblib
 from jobrun.util import md5
 import pickle
+from infinity import inf
 
 
 class UpdateTrigger(object):
@@ -115,6 +116,21 @@ class FileModifiedBase(ModifiedBase):
         else:
             self.cache_filename = cache_filename
 
+def get_file_timestamp(filename):
+    if not os.path.exists(filename):
+        return -inf
+    return os.path.getmtime(filename)
+        
+class InfileOutfileTimestamp(DoNothingOnSuccessTrigger):
+    def __init__(self, infiles, outfiles):
+        self.infiles = infiles
+        self.outfiles = outfiles
+    
+    def check(self):
+        infile_timestamp = max(map(get_file_timestamp, self.infiles))
+        outfile_timestamp = min(map(get_file_timestamp, self.outfiles))
+        return infile_timestamp >= outfile_timestamp, None
+    
 class TimestampModified(FileModifiedBase):
     def get_stamp(self):
         return str(os.path.getmtime(self.filename))
