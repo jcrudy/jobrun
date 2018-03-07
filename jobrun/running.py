@@ -3,6 +3,7 @@ from .log_capturing import LogCapture
 import time
 from toolz.dicttoolz import merge
 from .util import none_to_empty_dict
+from six import string_types
 
 def depend(*dependencies):
     def _depend(fun):
@@ -37,7 +38,7 @@ class Runner(object):
         return jobs
     
     def run(self, suppress_printing=True):
-        logfilename = self.logfilenamer() if not isinstance(self.logfilenamer, basestring) else self.logfilenamer
+        logfilename = self.logfilenamer() if not isinstance(self.logfilenamer, string_types) else self.logfilenamer
         with LogCapture(logfilename, suppress_printing=suppress_printing) as log:
             t0 = time.time()
             jobs = self.run_order()
