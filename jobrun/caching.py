@@ -84,7 +84,7 @@ class ModifiedBase(UpdateTrigger):
         stamp = self.get_stamp()
         try:
             if os.path.exists(self.cache_filename):
-                with open(self.cache_filename, 'r') as infile:
+                with open(self.cache_filename, 'rb') as infile:
                     old_stamp = infile.read()
                 if stamp == old_stamp:
                     return False, None
@@ -93,7 +93,7 @@ class ModifiedBase(UpdateTrigger):
         return True, stamp
     
     def succeed(self, token):
-        with open(self.cache_filename, 'w') as outfile:
+        with open(self.cache_filename, 'wb') as outfile:
             outfile.write(token)
     
     @abstractmethod
